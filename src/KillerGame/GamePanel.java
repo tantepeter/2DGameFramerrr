@@ -5,12 +5,14 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
+import KillerGame.Entities.Dot;
+
 /**
  * Created by rico on 02.12.2014.
  */
 public class GamePanel extends JPanel implements Runnable {
 
-    private static int panelWidth = 500;
+    private static int panelWidth = 1024;
     private static int panelHeight = 400;
 
     private Thread animationThread;
@@ -20,16 +22,28 @@ public class GamePanel extends JPanel implements Runnable {
     private Graphics dbg;
     private Image dbImg = null;
 
+    private Color bgColor;
+
     private static final int NO_DELAYS_PER_YIELD = 16;
+
+    private static final int POINT_COUNT = 30;
+    private Dot points[];
 
     public GamePanel() {
 
-        setBackground(Color.black);
+        bgColor = new Color(236, 238, 207);
+        setBackground(bgColor);
         setPreferredSize( new Dimension(panelWidth, panelHeight));
 
         setFocusable(true);
         requestFocus();
         readyForTermination();
+
+        points = new Dot[POINT_COUNT];
+
+        for (int i = 0; i < POINT_COUNT; i++) {
+            points[i] = new Dot(panelWidth, panelHeight);
+        }
     }
 
     public void addNotify(){
@@ -52,14 +66,17 @@ public class GamePanel extends JPanel implements Runnable {
     public void run() {
         running = true;
 
+        int fps = 200;
+
         long tDiff, tSleep;
-        long period = 10L;
+        long period = (long) 1000 / fps * 1000000; // calc period duration in ms, then ms-> nano sec
         long tOverSleep = 0L;
         int noDelays = 0;
 
-        long t0 = System.nanoTime();
+        long t0;
 
         while(running) {
+            t0 = System.nanoTime();
             gameUpdate();
             gameRender();
             //repaint();                                    // direct draw
@@ -69,11 +86,12 @@ public class GamePanel extends JPanel implements Runnable {
             tSleep = period - tDiff;
 
             if (tSleep <= 0){
-                tSleep = 5;
+                tSleep = 5000000L;
             }
 
             try {
-                Thread.sleep(tDiff / 1000000);
+                Thread.sleep(tDiff / 1000000L);
+                //waitNano(tDiff);
             } catch(InterruptedException ex){
                 System.out.println(ex.getMessage());
             }
@@ -98,6 +116,12 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     private void gameUpdate(){
+
+        for (int i = 0; i < POINT_COUNT; i++) {
+            points[i].update();
+
+        }
+
         if (!gameOver) {
             //TODO
         }
@@ -115,9 +139,12 @@ public class GamePanel extends JPanel implements Runnable {
         }
         }
 
-        dbg.setColor(Color.black);
+        dbg.setColor(bgColor);
         dbg.fillRect(0,0, panelWidth, panelHeight);
 
+        for (int i = 0; i < POINT_COUNT; i++) {
+            points[i].draw(dbg);
+        }
         if (gameOver){
             gameOverMessage(dbg);
         }
