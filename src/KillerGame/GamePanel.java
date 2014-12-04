@@ -26,7 +26,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     private static final int NO_DELAYS_PER_YIELD = 16;
 
-    private static final int POINT_COUNT = 30;
+    private static final int POINT_COUNT = 60;
     private Dot points[];
 
     public GamePanel() {

@@ -10,8 +10,8 @@ public class Dot {
     private int x, y, size, panelWidth, panelHeight;
     Color color;
     private int speedx, speedy;
-    private static int maxSpeed = 6;
-    private static int maxSize = 30;
+    private static int maxSpeed = 4;
+    private static int maxSize = 60;
 
     public Dot(int panelWidth, int panelHeight) {
         Double randSize = Math.random() * maxSize;
@@ -19,6 +19,14 @@ public class Dot {
 
         Double randx = Math.random() * (panelWidth - size);
         Double randy = Math.random() * (panelHeight - size);
+
+        if (randx.intValue() == 0)
+            randx = 1D;
+
+        if (randy.intValue() == 0)
+            randy = 1D;
+
+
         x = randx.intValue();
         y = randy.intValue();
 
@@ -28,6 +36,9 @@ public class Dot {
 
         if (randSpeed.intValue() == 0)
             randSpeed = 1D;
+
+        if ((randx.intValue() % 2) == 0)
+            randSpeed = -randSpeed;
 
         speedx = randSpeed.intValue();
         speedy = randSpeed.intValue();
