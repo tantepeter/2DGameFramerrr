@@ -19,7 +19,7 @@ public class GamePanel extends JPanel implements Runnable {
     private volatile boolean running = false;
     private volatile boolean gameOver = false;
 
-    private Graphics dbg;
+    private Graphics2D dbg2D;
     private Image dbImg = null;
 
     private Color bgColor;
@@ -28,6 +28,12 @@ public class GamePanel extends JPanel implements Runnable {
 
     private static final int POINT_COUNT = 60;
     private Dot points[];
+
+    long frameCount;
+    long gameStartTime;
+    long gameTime;
+    long prefStatTime;
+    double avgFps;
 
     public GamePanel() {
 
@@ -40,6 +46,12 @@ public class GamePanel extends JPanel implements Runnable {
         readyForTermination();
 
         points = new Dot[POINT_COUNT];
+
+        frameCount = 0L;
+        gameStartTime = System.nanoTime();
+        gameTime = 0L;
+        prefStatTime = 0L;
+        avgFps = 0L;
 
         for (int i = 0; i < POINT_COUNT; i++) {
             points[i] = new Dot(panelWidth, panelHeight);
@@ -66,10 +78,10 @@ public class GamePanel extends JPanel implements Runnable {
     public void run() {
         running = true;
 
-        int fps = 200;
+        int fps = 100;
 
         long tDiff, tSleep;
-        long period = (long) 1000 / fps * 1000000; // calc period duration in ms, then ms-> nano sec
+        long period = (long) 1000L / fps * 1000000L; // calc period duration in ms, then ms-> nano sec
         long tOverSleep = 0L;
         int noDelays = 0;
 
@@ -82,6 +94,8 @@ public class GamePanel extends JPanel implements Runnable {
             //repaint();                                    // direct draw
             paintScreen();                                  // Active Rendering
 
+            saveStats();
+
             tDiff = System.nanoTime() - t0;
             tSleep = period - tDiff;
 
@@ -90,7 +104,7 @@ public class GamePanel extends JPanel implements Runnable {
             }
 
             try {
-                Thread.sleep(tDiff / 1000000L);
+                Thread.sleep(tSleep / 1000000L);
                 //waitNano(tDiff);
             } catch(InterruptedException ex){
                 System.out.println(ex.getMessage());
@@ -99,6 +113,18 @@ public class GamePanel extends JPanel implements Runnable {
     System.exit(0);
     }
 
+    private void saveStats(){
+
+        frameCount++;
+        gameTime = ((System.nanoTime() - gameStartTime) /1000000000L);
+
+        long timeElapsed = System.nanoTime() - prefStatTime;
+
+        if (gameTime > 0) {
+            avgFps = frameCount / ((System.nanoTime() - gameStartTime) / 1000000000L);
+        }
+        prefStatTime = System.nanoTime();
+    }
     private void paintScreen(){
         Graphics g;
         try {
@@ -135,27 +161,39 @@ public class GamePanel extends JPanel implements Runnable {
                 System.out.println("dbImg was null");
                 return;
             }else {
-                dbg = dbImg.getGraphics();
+                dbg2D = (Graphics2D) dbImg.getGraphics();
         }
         }
 
-        dbg.setColor(bgColor);
-        dbg.fillRect(0,0, panelWidth, panelHeight);
+        dbg2D.setColor(bgColor);
+        dbg2D.fillRect(0,0, panelWidth, panelHeight);
 
         for (int i = 0; i < POINT_COUNT; i++) {
-            points[i].draw(dbg);
+            points[i].draw(dbg2D);
         }
         if (gameOver){
-            gameOverMessage(dbg);
+            gameOverMessage(dbg2D);
         }
+
+        drawStats(dbg2D);
     }
 
-    private void gameOverMessage(Graphics g){
+    private void gameOverMessage(Graphics2D g){
         g.setColor(Color.cyan);
         Font myFont=new Font("Arial", Font.ITALIC|Font.PLAIN, 10);
 
         g.setFont( myFont );
         g.drawString("Game Over", 10,10);
+    }
+
+    private void drawStats(Graphics2D g){
+        g.setColor(Color.cyan);
+        Font myFont=new Font("Arial", Font.ITALIC|Font.PLAIN, 18);
+
+        g.setFont( myFont );
+        g.drawString("TimeInGame_" + gameTime + "s", 10,30);
+
+        g.drawString("AVG_FPS_" + avgFps, 10,60);
     }
 
     private void readyForTermination(){
