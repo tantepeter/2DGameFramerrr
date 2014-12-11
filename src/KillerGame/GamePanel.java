@@ -6,7 +6,6 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 import KillerGame.Entities.Dot;
-import sun.font.FontFamily;
 
 /**
  * Created by rico on 02.12.2014.
@@ -26,9 +25,10 @@ public class GamePanel extends JPanel implements Runnable {
     private Color bgColor;
 
     private static final int NO_DELAYS_PER_YIELD = 16;
-    private static final int fps = 50;
+    private static final int fps = 60;
+    private static final int ups = 40;
 
-    private static final int POINT_COUNT = 10;
+    private static final int POINT_COUNT = 30;
     private Dot points[];
 
     private StatCounter stats;
@@ -80,6 +80,7 @@ public class GamePanel extends JPanel implements Runnable {
 
         long tDiff, tSleep;
         long period = 1000L / fps * 1000000L; // calc period duration in ms, then ms-> nano sec
+        long updateInterval = 1000L / ups * 1000000;
         long tOverSleep = 0L;
         int noDelays = 0;
 
@@ -89,11 +90,9 @@ public class GamePanel extends JPanel implements Runnable {
 
         while(running) {
             t0 = System.nanoTime();
-            if ((counter % 3) == 0) {
+            if ((System.nanoTime() - stats.getLastUpdateTime()) >= updateInterval) {
                 gameUpdate();
-                counter = 1;
             }
-            counter++;
 
             gameRender();
             paintScreen();
@@ -125,6 +124,7 @@ public class GamePanel extends JPanel implements Runnable {
 
         }
 
+        stats.reportUpdate();
         if (!gameOver) {
             //TODO
         }
