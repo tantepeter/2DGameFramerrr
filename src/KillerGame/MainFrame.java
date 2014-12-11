@@ -10,6 +10,8 @@ import java.awt.*;
  */
 public class MainFrame extends JFrame {
 
+    private static int panelWidth = 800;
+    private static int panelHeight = 600;
 
     public MainFrame() throws HeadlessException {
         super("2D Animation Framework");
@@ -17,14 +19,16 @@ public class MainFrame extends JFrame {
         Container c = getContentPane();
         c.setLayout(new BorderLayout());
 
-        GamePanel gamePanel= new GamePanel();
+        GamePanel gamePanel= new GamePanel(panelWidth, panelHeight);
         c.add(gamePanel, "Center");
 
-        setUndecorated(false);
+        setUndecorated(true);
         setIgnoreRepaint(true);
-        pack();
+        setPreferredSize( new Dimension(panelWidth, panelHeight));
+
         setResizable(false);
-        setLocationRelativeTo(getParent());
+        //setLocationRelativeTo(getParent());
+        pack();
         setVisible(true);
     }
 

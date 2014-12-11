@@ -4,16 +4,18 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.*;
 
 import KillerGame.Entities.Dot;
+import sun.font.FontFamily;
 
 /**
  * Created by rico on 02.12.2014.
  */
 public class GamePanel extends JPanel implements Runnable {
 
-    private static int panelWidth = 1024;
-    private static int panelHeight = 400;
+    private static int panelWidth;
+    private static int panelHeight;
 
     private Thread animationThread;
     private volatile boolean running = false;
@@ -25,8 +27,9 @@ public class GamePanel extends JPanel implements Runnable {
     private Color bgColor;
 
     private static final int NO_DELAYS_PER_YIELD = 16;
+    private static final int fps = 100;
 
-    private static final int POINT_COUNT = 60;
+    private static final int POINT_COUNT = 10;
     private Dot points[];
 
     long frameCount;
@@ -35,11 +38,14 @@ public class GamePanel extends JPanel implements Runnable {
     long prefStatTime;
     double avgFps;
 
-    public GamePanel() {
+    public GamePanel(int width, int height) {
 
         bgColor = new Color(236, 238, 207);
         setBackground(bgColor);
-        setPreferredSize( new Dimension(panelWidth, panelHeight));
+
+        this.panelWidth = width;
+        this.panelHeight = height;
+
 
         setFocusable(true);
         requestFocus();
@@ -78,18 +84,23 @@ public class GamePanel extends JPanel implements Runnable {
     public void run() {
         running = true;
 
-        int fps = 100;
-
         long tDiff, tSleep;
         long period = (long) 1000L / fps * 1000000L; // calc period duration in ms, then ms-> nano sec
         long tOverSleep = 0L;
         int noDelays = 0;
 
+        long counter = 1;
+
         long t0;
 
         while(running) {
             t0 = System.nanoTime();
-            gameUpdate();
+            if ((counter%4) == 0) {
+                gameUpdate();
+                counter = 1;
+            }
+            counter++;
+
             gameRender();
             //repaint();                                    // direct draw
             paintScreen();                                  // Active Rendering
@@ -105,7 +116,7 @@ public class GamePanel extends JPanel implements Runnable {
 
             try {
                 Thread.sleep(tSleep / 1000000L);
-                //waitNano(tDiff);
+                System.out.println("runloop: sleep for " + tSleep + "ms");
             } catch(InterruptedException ex){
                 System.out.println(ex.getMessage());
             }
@@ -187,13 +198,13 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     private void drawStats(Graphics2D g){
-        g.setColor(Color.cyan);
-        Font myFont=new Font("Arial", Font.ITALIC|Font.PLAIN, 18);
+        g.setColor(Color.black);
+        Font myFont=new Font("Courier", Font.ITALIC|Font.PLAIN, 10);
 
         g.setFont( myFont );
-        g.drawString("TimeInGame_" + gameTime + "s", 10,30);
+        g.drawString("TIME_" + gameTime + "_s", 5,10);
 
-        g.drawString("AVG_FPS_" + avgFps, 10,60);
+        g.drawString("AVG_FPS_" + avgFps, 5,20);
     }
 
     private void readyForTermination(){
