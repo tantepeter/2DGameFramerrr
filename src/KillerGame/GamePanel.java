@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.*;
 
 import KillerGame.Entities.Dot;
 import sun.font.FontFamily;
@@ -27,15 +26,13 @@ public class GamePanel extends JPanel implements Runnable {
     private Color bgColor;
 
     private static final int NO_DELAYS_PER_YIELD = 16;
-    private static final int fps = 100;
+    private static final int fps = 50;
 
     private static final int POINT_COUNT = 10;
     private Dot points[];
 
-    long frameCount;
-    long gameStartTime;
+    private StatCounter stats;
     long gameTime;
-    long prefStatTime;
     double avgFps;
 
     public GamePanel(int width, int height) {
@@ -43,8 +40,8 @@ public class GamePanel extends JPanel implements Runnable {
         bgColor = new Color(236, 238, 207);
         setBackground(bgColor);
 
-        this.panelWidth = width;
-        this.panelHeight = height;
+        panelWidth = width;
+        panelHeight = height;
 
 
         setFocusable(true);
@@ -53,11 +50,8 @@ public class GamePanel extends JPanel implements Runnable {
 
         points = new Dot[POINT_COUNT];
 
-        frameCount = 0L;
-        gameStartTime = System.nanoTime();
-        gameTime = 0L;
-        prefStatTime = 0L;
-        avgFps = 0L;
+        stats = new StatCounter();
+        stats.start();
 
         for (int i = 0; i < POINT_COUNT; i++) {
             points[i] = new Dot(panelWidth, panelHeight);
@@ -85,7 +79,7 @@ public class GamePanel extends JPanel implements Runnable {
         running = true;
 
         long tDiff, tSleep;
-        long period = (long) 1000L / fps * 1000000L; // calc period duration in ms, then ms-> nano sec
+        long period = 1000L / fps * 1000000L; // calc period duration in ms, then ms-> nano sec
         long tOverSleep = 0L;
         int noDelays = 0;
 
@@ -95,17 +89,15 @@ public class GamePanel extends JPanel implements Runnable {
 
         while(running) {
             t0 = System.nanoTime();
-            if ((counter%4) == 0) {
+            if ((counter % 3) == 0) {
                 gameUpdate();
                 counter = 1;
             }
             counter++;
 
             gameRender();
-            //repaint();                                    // direct draw
-            paintScreen();                                  // Active Rendering
+            paintScreen();
 
-            saveStats();
 
             tDiff = System.nanoTime() - t0;
             tSleep = period - tDiff;
@@ -116,7 +108,7 @@ public class GamePanel extends JPanel implements Runnable {
 
             try {
                 Thread.sleep(tSleep / 1000000L);
-                System.out.println("runloop: sleep for " + tSleep + "ms");
+                System.out.println("runloop: sleep for " + tSleep / 100000L + "ms");
             } catch(InterruptedException ex){
                 System.out.println(ex.getMessage());
             }
@@ -124,37 +116,11 @@ public class GamePanel extends JPanel implements Runnable {
     System.exit(0);
     }
 
-    private void saveStats(){
-
-        frameCount++;
-        gameTime = ((System.nanoTime() - gameStartTime) /1000000000L);
-
-        long timeElapsed = System.nanoTime() - prefStatTime;
-
-        if (gameTime > 0) {
-            avgFps = frameCount / ((System.nanoTime() - gameStartTime) / 1000000000L);
-        }
-        prefStatTime = System.nanoTime();
-    }
-    private void paintScreen(){
-        Graphics g;
-        try {
-            g = this.getGraphics();
-
-            if ((g != null) && (dbImg != null)) {
-                g.drawImage(dbImg, 0, 0, null);
-            }
-
-            Toolkit.getDefaultToolkit().sync();
-            g.dispose();
-        } catch (Exception e){
-            System.out.println("Graphics context error: " + e);
-        }
-    }
-
     private void gameUpdate(){
 
         for (int i = 0; i < POINT_COUNT; i++) {
+
+            if (points[i] != null)
             points[i].update();
 
         }
@@ -179,22 +145,40 @@ public class GamePanel extends JPanel implements Runnable {
         dbg2D.setColor(bgColor);
         dbg2D.fillRect(0,0, panelWidth, panelHeight);
 
+        stats.draw(dbg2D);
         for (int i = 0; i < POINT_COUNT; i++) {
             points[i].draw(dbg2D);
         }
+
         if (gameOver){
             gameOverMessage(dbg2D);
         }
 
-        drawStats(dbg2D);
+    }
+
+    private void paintScreen() {
+        Graphics2D g;
+        try {
+            g = (Graphics2D) this.getGraphics();
+
+            if ((g != null) && (dbImg != null)) {
+                g.drawImage(dbImg, 0, 0, null);
+                stats.reportFrame();
+            }
+
+            Toolkit.getDefaultToolkit().sync();
+            g.dispose();
+        } catch (Exception e) {
+            System.out.println("Graphics context error: " + e);
+        }
     }
 
     private void gameOverMessage(Graphics2D g){
         g.setColor(Color.cyan);
         Font myFont=new Font("Arial", Font.ITALIC|Font.PLAIN, 10);
 
-        g.setFont( myFont );
-        g.drawString("Game Over", 10,10);
+        g.setFont(myFont);
+        g.drawString("Game Over", 10, 10);
     }
 
     private void drawStats(Graphics2D g){

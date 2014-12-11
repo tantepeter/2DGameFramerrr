@@ -24,12 +24,13 @@ public class MainFrame extends JFrame {
 
         setUndecorated(true);
         setIgnoreRepaint(true);
-        setPreferredSize( new Dimension(panelWidth, panelHeight));
+        setPreferredSize(new Dimension(panelWidth, panelHeight));
 
         setResizable(false);
         //setLocationRelativeTo(getParent());
-        pack();
+
         setVisible(true);
+        pack();
     }
 
     public static void main(String args[]){
