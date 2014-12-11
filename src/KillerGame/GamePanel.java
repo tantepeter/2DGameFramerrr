@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 
 import KillerGame.Entities.Dot;
 
@@ -20,13 +21,13 @@ public class GamePanel extends JPanel implements Runnable {
     private volatile boolean gameOver = false;
 
     private Graphics2D dbg2D;
-    private Image dbImg = null;
+    private BufferedImage dbImg = null;
 
     private Color bgColor;
 
     private static final int NO_DELAYS_PER_YIELD = 16; // Number of Frames with 0 delay until the animatorThread yields to other Threads
     private static final int fps = 1000;
-    private static final int ups = 100;
+    private static final int ups = 25;
 
     private static final int POINT_COUNT = 30;
     private Dot points[];
@@ -148,7 +149,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     private void gameRender(){
         if (dbImg == null) {
-            dbImg = createImage(panelWidth, panelHeight);
+            dbImg = new BufferedImage(panelWidth, panelHeight, BufferedImage.TYPE_INT_RGB);
 
             if (dbImg == null){
                 System.out.println("dbImg was null");
