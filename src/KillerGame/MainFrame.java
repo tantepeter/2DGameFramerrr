@@ -27,9 +27,13 @@ public class MainFrame extends JFrame {
         setPreferredSize(new Dimension(panelWidth, panelHeight));
 
         setResizable(false);
-        //setLocationRelativeTo(getParent());
+
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();         // Get graphicEnvironment to obtain the Screens center
+        setBounds(ge.getCenterPoint().x, ge.getCenterPoint().y, panelWidth, panelHeight);   // Set frames bounds to the screens center - frames size
+        setLocationRelativeTo(getParent());
 
         setVisible(true);
+
         pack();
     }
 
