@@ -11,7 +11,7 @@ public class Dot {
     Color color;
     private int speedx, speedy;
     private static int maxSpeed = 4;
-    private static int maxSize = 60;
+    private static int maxSize = 200;
 
     public Dot(int panelWidth, int panelHeight) {
         Double randSize = Math.random() * maxSize;
@@ -81,8 +81,8 @@ public class Dot {
         Double r, g, b;
 
         r = Math.random() * 255;
-        g = Math.random() * 255;
-        b = Math.random() * 255;
+        g = 200D;//Math.random() * 255;
+        b = 166D;//Math.random() * 255;
 
         this.color = new Color(r.intValue(), g.intValue(), b.intValue());
 

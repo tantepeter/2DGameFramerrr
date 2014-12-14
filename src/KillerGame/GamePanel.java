@@ -5,8 +5,11 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.net.URL;
 
 import KillerGame.Entities.Dot;
+import KillerGame.Entities.TileMap;
 
 /**
  * Created by rico on 02.12.2014.
@@ -30,11 +33,14 @@ public class GamePanel extends JPanel implements Runnable {
     private static final int ups = 25;
 
     private static final int POINT_COUNT = 30;
+    private TileMap tileMap;
     private Dot points[];
 
     private StatCounter stats;
     long gameTime;
     double avgFps;
+
+    ImageLoader imgLoader;
 
     public GamePanel(int width, int height) {
 
@@ -50,9 +56,21 @@ public class GamePanel extends JPanel implements Runnable {
         readyForTermination();
 
         points = new Dot[POINT_COUNT];
+        tileMap = new TileMap(panelWidth, panelHeight, 64, ((panelWidth/2) - (1056/2)), (panelHeight/2));
 
         stats = new StatCounter();
         stats.start();
+
+
+        imgLoader = new ImageLoader();
+        File tile_sand = new File("c:\\Users\\rico\\IdeaProjects\\KillerGameFramework\\res\\tile_sand.png");
+        File tile_grass = new File("c:\\Users\\rico\\IdeaProjects\\KillerGameFramework\\res\\tile_grass.png");
+        File tile_wall = new File("c:\\Users\\rico\\IdeaProjects\\KillerGameFramework\\res\\tile_wall.png");
+
+        imgLoader.loadImage(tile_sand);
+        imgLoader.loadImage(tile_grass);
+        imgLoader.loadImage(tile_wall);
+
 
         for (int i = 0; i < POINT_COUNT; i++) {
             points[i] = new Dot(panelWidth, panelHeight);
@@ -167,10 +185,11 @@ public class GamePanel extends JPanel implements Runnable {
             points[i].draw(dbg2D);
         }
 
+        tileMap.draw(dbg2D, imgLoader);
         if (gameOver){
             gameOverMessage(dbg2D);
         }
-
+        stats.draw(dbg2D);
     }
 
     private void paintScreen() {

@@ -10,8 +10,8 @@ import java.awt.*;
  */
 public class MainFrame extends JFrame {
 
-    private static int panelWidth = 800;
-    private static int panelHeight = 600;
+    private static int panelWidth = 1280;
+    private static int panelHeight = 720;
 
     public MainFrame() throws HeadlessException {
         super("2D Animation Framework");
