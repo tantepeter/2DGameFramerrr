@@ -29,7 +29,7 @@ public class GamePanel extends JPanel implements Runnable {
     private Color bgColor;
 
     private static final int NO_DELAYS_PER_YIELD = 16; // Number of Frames with 0 delay until the animatorThread yields to other Threads
-    private static final int fps = 1000;
+    private static final int fps = 200;
     private static final int ups = 25;
 
     private static final int POINT_COUNT = 30;
@@ -37,10 +37,8 @@ public class GamePanel extends JPanel implements Runnable {
     private Dot points[];
 
     private StatCounter stats;
-    long gameTime;
-    double avgFps;
 
-    ImageLoader imgLoader;
+    private ImageLoader imgLoader;
 
     public GamePanel(int width, int height) {
 
@@ -63,14 +61,10 @@ public class GamePanel extends JPanel implements Runnable {
 
 
         imgLoader = new ImageLoader();
-        File tile_sand = new File("c:\\Users\\rico\\IdeaProjects\\KillerGameFramework\\res\\tile_sand.png");
-        File tile_grass = new File("c:\\Users\\rico\\IdeaProjects\\KillerGameFramework\\res\\tile_grass.png");
-        File tile_wall = new File("c:\\Users\\rico\\IdeaProjects\\KillerGameFramework\\res\\tile_wall.png");
 
-        imgLoader.loadImage(tile_sand);
-        imgLoader.loadImage(tile_grass);
-        imgLoader.loadImage(tile_wall);
-
+        imgLoader.loadImage(this.getClass().getResource("res\\tile_sand.png"));
+        imgLoader.loadImage(this.getClass().getResource("res\\tile_grass.png"));
+        imgLoader.loadImage(this.getClass().getResource("res\\tile_wall.png"));
 
         for (int i = 0; i < POINT_COUNT; i++) {
             points[i] = new Dot(panelWidth, panelHeight);
@@ -127,7 +121,7 @@ public class GamePanel extends JPanel implements Runnable {
             if (tSleep > 0) {
                 try {
                     Thread.sleep(tSleep / 1000000L);
-                    System.out.println("runloop: sleep for " + tSleep / 100000L + "ms");
+                    //System.out.println("runloop: sleep for " + tSleep / 100000L + "ms");
                 } catch (InterruptedException ex) {
                     System.out.println(ex.getMessage());
                 }
